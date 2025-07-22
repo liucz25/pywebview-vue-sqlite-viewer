@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./vue2.js"></script>
+    <!-- tool -->
+    <script>
+        function getdatahead() {
+            // alert("getdataheadtest")
+            pywebview.api.getdatahead("renyuanbiao").then(function (data) {
+                // alert(data)
+            })
+        }
+        function getdatabody() {
+            alert("getdatabodytest")
+            pywebview.api.getdatabody("renyuanbiao").then(function (data) {
+                alert(data)
+            })
+        }
+        function insertdata() {
+            alert("insertdatatest")
+            data1 = '网路'
+            data2 = '男'
+            data3 = 13 + "王柳" + data1 + 4 + data2 + 54 + "男" + 6
+            data = JSON.stringify(data3)
+            datastr = '"' + 16 + '","' + data1 + '",' + 54 + ',"' + data2 + '",' + 4
+            alert(datastr)
+            pywebview.api.insertdata("renyuanbiao", datastr).then(function (data) {
+                pywebview.api.getdatabody("renyuanbiao").then(function (data) {
+                    alert(data)
+                })
+            })
+        }
+        function showResponse(response) {
+            // alert(1)
+            // var container = document.getElementById('response-container')
+            // container.innerText = response
+            // // alert(2)
+            // container.style.display = 'block'
+        }
+        function al() {
+            pywebview.api.getdata('renyuanbiao').then(function (data) {
+                showResponse(data)
+                console.log(app.message)
+                app.sqldata = data
+                console.log(app.sqldata)
+            },
+            )
+        }
+        function showRecordset(tablename) {
+            //debug show: rs; 
+
+            pywebview.api.getdatahead(tablename).then(function (data) {
+                // alert(data)
+                app.sqlhead = data
+                // var headers = [];
+                // for (var n = 0; n < app.sqlhead.length; ++n) {
+                //     // const title = `${rs.name(n, "database")}:${rs.name(n, "table")}:${rs.name(n, "field")}`;
+                //     // alert(app.sqlhead[n])
+                //     headers.push("<th >" + app.sqlhead[n] + "</th>");
+
+                // }
+                // // document.body.append(<table><thead><tr>+ headers + </tr></thead>)
+                //     var container = document.getElementById('response-container')
+                //     container.innerText="<table><thead><tr>"+ headers + "</tr></thead>"
+                //      container.style.display = 'block'
+            });
+
+            pywebview.api.getdatabody(tablename).then(function (data) {
+                // alert(data)
+                app.sqldata = data
+
+                // var rows = [];
+
+                // function cells() {
+
+                //     for (var n = 0; n < app.sqldata.length; ++n)
+                //         var list = [];
+                //         for (var i=0;i<n.length;++i)
+                //             list.push("<td>" + app.sqldata[n] + '</td>');
+                //         rows.push("<tr>"+list+"</tr>")
+                // }
+
+                // // document.body.append("<tbody>" + rows + "</tbody></table>");
+                //     var container = document.getElementById('response-container')
+                //     container.innerText="<tbody>" + rows + "</tbody></table>"
+                //      container.style.display = 'block'
+            })
+        }
+
+        function show(tablename) {
+            app.tablename = tablename
+            app.addplus = true
+            showRecordset(tablename)
+        }
+        function deltablerow(id) {
+            alert(id)
+            pywebview.api.delectdata(app.tablename, "id=" + id).then(() => { alert("delect done"); showRecordset(app.tablename); })
+
+
+        }
+
+
+        function deltable(e) {
+            alert(e)
+        }
+        function update(id) {
+            pywebview.api.getdataone(app.tablename, id).then(function (data) { app.sqlone = data });
+            app.add = false
+            app.mod = true
+        }
+        function updateload(id) {
+
+            pywebview.api.updatedata(app.tablename, app.sqlhead, app.sqlone, 'id=' + id).then(
+                () => { alert("update done"); app.sqlone = ''; showRecordset(app.tablename); }
+            );
+            app.mod = false
+        }
+        function addone() {
+            var id_max = 0;
+            for (j = 0; j < app.sqldata.length; ++j) {
+                if (id_max < app.sqldata[j][0]) id_max = app.sqldata[j][0]
+            }
+            app.sqlone = [id_max + 1,]
+            for (k = 1; k < app.sqlhead.length; ++k) {
+                app.sqlone.push("")
+            }
+            app.add = true
+            app.mod = false
+        }
+        function settablename() {
+            pywebview.api.getalltablename().then((data) => {
+                app.tablelist = data
+                // alert(data)
+            });
+        }
+        function insertdata() {
+            pywebview.api.insertdata(app.tablename, app.sqlone).then(
+                () => { alert("INSERT done"); app.sqlone = ''; showRecordset(app.tablename); }
+            );
+            app.add = false
+        }
+        function changetable(d){
+            var tablename=document.getElementById('sel').value
+            show(tablename)
+            // alert(d)
+        }
+    </script>
+    <!-- initi -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('DOM fully loaded and parsed');
+            // 在这里执行DOM相关的操作
+
+            // alert("ok");
+            setTimeout(settablename, 1000)
+        });
+    </script>
+
+</head>
+
+<body>
+    <!-- <button onclick=show('renyuanbiao')>人员表renyuanbiao</button>
+    <button onclick=show('workbiao')>工作 表workbiao</button>
+    <button onclick=show('renyuanworkbiao')>工作量表renyuanworkbiao</button>
+    <button onclick=show('workloadview')>工作量视图workloadview</button> -->
+    <!-- <button onclick=insertdata()>测试</button> -->
+
+
+    <div id="app">
+
+        <select v-on:change='changetable' id="sel">
+            <option  v-for="item in tablelist"   v-model=item>{{item}}</option>
+        </select>
+        <table>
+            <tr>
+                <th v-if="add || mod" v-for="item in sqlhead">{{item}}</th>
+
+            </tr>
+            <tr>
+                <td v-for="(c,i) in sqlone">
+                    <!-- {{ite}}</td> -->
+                    <input type="text" v-model="sqlone[i]">
+                </td>
+                <td><button v-if="mod" @click='updateload(sqlone[0])'>修改</button></td>
+                <td><button v-if="add" @click='insertdata()'>添加</button></td>
+            </tr>
+
+        </table>
+
+        <table>
+            <tr>
+                <th v-for="item in sqlhead">{{item}}</th>
+                <td><button v-if="addplus" @click="addone">+</button></td>
+            </tr>
+            <tr v-for="ite in sqldata">
+
+                <td v-for='it in ite'>{{it}}</td>
+                <td><button @click='deltablerow(ite[0])'>X</button></td>
+                <td><button @click='update(ite[0])'>修改</button></td>
+            </tr>
+
+        </table>
+
+        {{message}}
+
+
+
+
+
+        <!-- {{sqlhead}}
+        {{sqldata}} -->
+        <!-- <div id="response-container"></div> -->
+
+    </div>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                message: '',
+                tablename: "",
+                sqlhead: '',
+                sqldata: '',
+                sqlone: '',
+                add: false,
+                mod: false,
+                addplus: false,
+                tablelist: '',
+                changetable:changetable
+            },
+            methods: {
+                deltablerow: deltablerow,
+                addone: addone,
+                update: update,
+                updateload: updateload,
+                insertdata: insertdata
+            }
+        })
+    </script>
+</body>
+
+</html>
