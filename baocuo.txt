@@ -1,0 +1,15 @@
+Uncaught (in promise) Traceback (most recent call last):
+  File "C:\Users\liuch\anaconda3\envs\pyweb\lib\site-packages\webview\util.py", line 241, in _call
+    result = func(*func_params)
+  File "D:\code-pywebview\t6\api.py", line 24, in getdatahead
+    table_info=self.curser.fetchall()
+sqlite3.ProgrammingError: SQLite objects created in a thread can only be used in that same thread. The object was created in thread id 2800 and this is thread id 5432.
+
+(anonymous) @ VM15:148
+Promise.then(异步)
+showRecordset @ index.html:56
+onclick @ index.html:102
+
+
+
+SELECT * FROM renyuanbiao WHRER id=4
